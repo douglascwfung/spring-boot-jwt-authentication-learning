@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Component
 public class CustomAccessDeineHandler implements AccessDeniedHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomAccessDeineHandler.class);
@@ -29,11 +31,11 @@ public class CustomAccessDeineHandler implements AccessDeniedHandler {
         logger.error("Unauthorized error: {}", accessDeniedException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error", "Unauthorized");
+        body.put("status", HttpServletResponse.SC_FORBIDDEN);
+        body.put("error", "Forbidden");
         body.put("message", accessDeniedException.getMessage());
         body.put("path", request.getServletPath());
 

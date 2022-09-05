@@ -33,16 +33,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private AuthEntryPointJwt unauthorizedHandler;
 	
+	@Autowired
+	private CustomAccessDeineHandler accessDeineHandler;
+
+	
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
 		return new AuthTokenFilter();
 	}
+
 	
-	@Override
-	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-	}
+	// commented out by me, and check it is ok to run without it
+//	@Override
+//	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+//		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//	}
 	
+	// For user sign in
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -56,18 +63,29 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable()
+		http.cors()
+			//
+			.and()
+			.csrf().disable()
+			//
 			.exceptionHandling()
 			.authenticationEntryPoint(unauthorizedHandler)
-			.accessDeniedHandler(new CustomAccessDeineHandler())
-			 .and()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.authorizeRequests().antMatchers("/api/auth/**").permitAll()
-			.antMatchers("/api/test/**").permitAll()
-			.antMatchers("/h2-console/**").permitAll()
-			.anyRequest().authenticated();
+			.accessDeniedHandler(accessDeineHandler)
+			//
+			.and()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			//
+			.and()
+			.authorizeRequests()
+				.antMatchers("/api/auth/**").permitAll()
+				.antMatchers("/api/test/**").permitAll()
+				.antMatchers("/h2-console/**").permitAll()
+				.anyRequest().authenticated();
+		
 		http.headers().frameOptions().disable();
+		
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+		
 	}
 }
 
